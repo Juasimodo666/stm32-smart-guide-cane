@@ -1,12 +1,4 @@
-/*****************Á¹½éµ¥Æ¬»úÉè¼Æ******************
-                      STM32                
- * °æ±¾     :  V1.0
- * MCU      :  STM32F103C8T6
- * BÕ¾      :  Á¹½éµ¥Æ¬»úÉè¼Æ
- * ×÷Õß     :  Á¹½é
- * Î¢ĞÅ     :  danpianji6
-  ÁªÏµÎÒÃâ·Ñ»ñÈ¡¸ü¶à¿ªÔ´×ÊÁÏ£¡µ¥Æ¬»ú¶¨×ö£¡
-**********************BEGIN***********************/
+
 #include "stm32f10x.h"
 #include "usart.h"
 #include "myiic.h"
@@ -16,7 +8,7 @@
 #include "dht11.h"
 #include "esp8266.h"
 #include "string.h"
-#include "mq4.h" //MQ4ÌìÈ»Æø´«¸ĞÆ÷Çı¶¯¿â
+#include "mq4.h" //MQ4å¤©ç„¶æ°”ä¼ æ„Ÿå™¨é©±åŠ¨åº“
 #include "led.h"
 #include "key.h"
 #include "gps.h"
@@ -28,15 +20,15 @@
 #include "Store.h"
 #include "tcs34725.h"
 #include "adc.h"
-u8 color_detect_enable = 0; // ÑÕÉ«¼ì²âÊ¹ÄÜ±êÖ¾Î»
-u8 last_color = 0; // 0:ÎŞÉ« 1:ºì 2:ÂÌ 3:»Æ
+u8 color_detect_enable = 0; // é¢œè‰²æ£€æµ‹ä½¿èƒ½æ ‡å¿—ä½
+u8 last_color = 0; // 0:æ— è‰² 1:çº¢ 2:ç»¿ 3:é»„
 COLOR_RGBC rgb;
 COLOR_HSL  hsl;
- u16 Light;//µÆ¹â
-/*MPU6050²ÎÊı*/
+ u16 Light;//ç¯å…‰
+/*MPU6050å‚æ•°*/
 extern u8 MPU_flag;
 extern u8 QX_Flag,SD_Time,SD_Flag;
-/*MPU6050²ÎÊı*/
+/*MPU6050å‚æ•°*/
 void Title(void);
 u16 Light_Check(void);
 void Page_1(void);
@@ -50,23 +42,23 @@ int num=0;
 int temp=0;
 
 
-/*********ĞÄÂÊ²ÎÊı**************/
+/*********å¿ƒç‡å‚æ•°**************/
 #define MAX_BRIGHTNESS 255
 uint32_t aun_ir_buffer[500]; //IR LED sensor data
 int32_t n_ir_buffer_length;    //data length
 uint32_t aun_red_buffer[500];    //Red LED sensor data
 int32_t n_sp02; //SPO2 value
 int8_t ch_spo2_valid;   //indicator to show if the SP02 calculation is valid
-int32_t heartrate;   //ĞÄÂÊ
+int32_t heartrate;   //å¿ƒç‡
 int8_t  ch_hr_valid;    //indicator to show if the heart rate calculation is valid
 uint8_t uch_dummy;
-extern double lon;//¾­¶È
-extern double lat;//Î³¶È
-//dht11Ìí¼Ó±äÁ¿
+extern double lon;//ç»åº¦
+extern double lat;//çº¬åº¦
+//dht11æ·»åŠ å˜é‡
 DHT11_Data_TypeDef DHT11_Data;
 extern  DHT11_Data_TypeDef DHT11_Data;
-extern _calendar_obj calendar;//Ê±ÖÓ½á¹¹Ìå 
-u8 keynum;//°´¼üÖµ
+extern _calendar_obj calendar;//æ—¶é’Ÿç»“æ„ä½“ 
+u8 keynum;//æŒ‰é”®å€¼
 
 	extern		uint16_t Light;
 		extern		uint16_t xx;
@@ -75,16 +67,16 @@ extern char str1[20];
 char data[200];
 u8 page=0;	
 u8 length,alarm_length=5;
-/*ĞÄÂÊ²ÎÊı*/
+/*å¿ƒç‡å‚æ•°*/
 int i;
 float f_temp;
 uint32_t un_min, un_max, un_prev_data;  //variables to calculate the on-board LED brightness that reflects the heartbeats
 int32_t n_brightness;
-/*ĞÄÂÊ²ÎÊı*/
+/*å¿ƒç‡å‚æ•°*/
  
- u8 row=2;//ãĞÖµÉèÖÃµÄ¹â±êY×ø±ê
+ u8 row=2;//é˜ˆå€¼è®¾ç½®çš„å…‰æ ‡Yåæ ‡
 extern u8 GPS_Success;
-extern u8 ESP_Success_First;//µÚÒ»´ÎÁ¬½ÓWIFI³É¹¦±êÖ¾Î»
+extern u8 ESP_Success_First;//ç¬¬ä¸€æ¬¡è¿æ¥WIFIæˆåŠŸæ ‡å¿—ä½
 u8 HeartRate_Flag=0;
 u8 count_Light=20,count_Length=5,count_Temp=39,count_Hum=90,count_HeartRate=150;
 extern	u8 Res1;
@@ -93,15 +85,15 @@ u8 Alarm=0x00;
 int main(void)
 {		
 
-  NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);	//ÖĞ¶Ï¿ØÖÆÆ÷·Ö×éÉèÖÃ
-  Usart1_Init(9600);							//´®¿Ú1£¬´òÓ¡ĞÅÏ¢ÓÃ
-  Usart2_Init(115200);						//´®¿Ú2£¬Çı¶¯ESP8266ÓÃ
+  NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);	//ä¸­æ–­æ§åˆ¶å™¨åˆ†ç»„è®¾ç½®
+  Usart1_Init(9600);							//ä¸²å£1ï¼Œæ‰“å°ä¿¡æ¯ç”¨
+  Usart2_Init(115200);						//ä¸²å£2ï¼Œé©±åŠ¨ESP8266ç”¨
 	USART3_Init(9600);
-	Store_Init();				//²ÎÊı´æ´¢Ä£¿é³õÊ¼»¯£¬ÔÚÉÏµçµÄÊ±ºò½«ÉÁ´æµÄÊı¾İ¼ÓÔØ»ØStore_Data£¬ÊµÏÖµôµç²»¶ªÊ§
+	Store_Init();				//å‚æ•°å­˜å‚¨æ¨¡å—åˆå§‹åŒ–ï¼Œåœ¨ä¸Šç”µçš„æ—¶å€™å°†é—ªå­˜çš„æ•°æ®åŠ è½½å›Store_Dataï¼Œå®ç°æ‰ç”µä¸ä¸¢å¤±
 	count_Length=Store_Data[1];
 	Set_CY_hour=Store_Data[2];
 	Set_CY_min=Store_Data[3];
-	TIM3_Int_Init(10-1,7200-1);//10KhzµÄ¼ÆÊıÆµÂÊ£¬¼ÆÊıµ½5000Îª500ms  
+	TIM3_Int_Init(10-1,7200-1);//10Khzçš„è®¡æ•°é¢‘ç‡ï¼Œè®¡æ•°åˆ°5000ä¸º500ms  
   OLED_Init();
   OLED_Clear(0);
   LED_Init();
@@ -111,39 +103,39 @@ int main(void)
   Key_Init();
 	Hcsr04Init();
 	TCS34725_Init();
-  DHT11_Init();           //DHT11³õÊ¼»¯ 
+  DHT11_Init();           //DHT11åˆå§‹åŒ– 
 	RTC_Init();
- 	MPU6050_Init();//ÍÓÂİÒÇ³õÊ¼»¯
+ 	MPU6050_Init();//é™€èºä»ªåˆå§‹åŒ–
 	MPU6050_EXTI_Init();
 	Adc_Init();
  do {
 			keynum=Key_GetNum();
 			WIFIChoose_Page();
-			if(keynum==1)//°´¼ü1
+			if(keynum==1)//æŒ‰é”®1
 			{
-				// Ö´ĞĞÁªÍø²Ù×÷
+				// æ‰§è¡Œè”ç½‘æ“ä½œ
 				OLED_Clear(0); 
 				Title();
 				ESP8266_Init();
-			//	WIFIUpdataFlag=1;//ÔÊĞíESP8266Êı¾İÉÏ´«±êÖ¾
-				break; // ÍË³öÑ­»·
+			//	WIFIUpdataFlag=1;//å…è®¸ESP8266æ•°æ®ä¸Šä¼ æ ‡å¿—
+				break; // é€€å‡ºå¾ªç¯
 			} 
-			else if (keynum ==2)//°´¼ü2
+			else if (keynum ==2)//æŒ‰é”®2
 			{
-				OLED_Clear(0); // ²»Ö´ĞĞÈÎºÎ²Ù×÷£¬Ö±½ÓÍË³öÑ­»·
-				break; // ÍË³öÑ­»·
+				OLED_Clear(0); // ä¸æ‰§è¡Œä»»ä½•æ“ä½œï¼Œç›´æ¥é€€å‡ºå¾ªç¯
+				break; // é€€å‡ºå¾ªç¯
 			}
 			else 
 			{
 			}
-		} while (1); // Ò»Ö±Ñ­»·Ö±µ½ÓÃ»§Ñ¡ÔñÁË1»ò2
+		} while (1); // ä¸€ç›´å¾ªç¯ç›´åˆ°ç”¨æˆ·é€‰æ‹©äº†1æˆ–2
 
 	//ESP8266_Init();
 	//Hcsr04Init();
 //  while(1)
 //{
 //	temperature_[num]=get_temperature();
-//	OLED_ShowNum(50,0,change(temperature_[num])+3.14,2,16);//¼Ó3.14ÊÇÒòÎªÎÒÃ»ÓĞ¾Û¼¯Àâ¾µËùÒÔ·øÉäÎŞ·¨¾Û¼¯µ¼ÖÂ²âÎÂÓĞÎó²îÊôÓÚĞŞÕıÎó²îµÄ¶îÍâ¼ÓÖµ(¿ÉÒÔ×Ô¼ºĞŞ¸Ä)
+//	OLED_ShowNum(50,0,change(temperature_[num])+3.14,2,16);//åŠ 3.14æ˜¯å› ä¸ºæˆ‘æ²¡æœ‰èšé›†æ£±é•œæ‰€ä»¥è¾å°„æ— æ³•èšé›†å¯¼è‡´æµ‹æ¸©æœ‰è¯¯å·®å±äºä¿®æ­£è¯¯å·®çš„é¢å¤–åŠ å€¼(å¯ä»¥è‡ªå·±ä¿®æ”¹)
 //}
 
 
@@ -152,14 +144,14 @@ int main(void)
 
 		
 	  SU_03T();
-		if(MPU_flag==1)//MPUÖĞ¶Ï±êÖ¾Î»
+		if(MPU_flag==1)//MPUä¸­æ–­æ ‡å¿—ä½
 		{
 			MPU_Data();
 			MPU_flag=0;
 		}
 		Light=Light_Check();
 		
-		WIFI_ReConnect();//WIFI¶Ï¿ªÖØÁ¬º¯Êı
+		WIFI_ReConnect();//WIFIæ–­å¼€é‡è¿å‡½æ•°
 		TCS34725_GetRawData(&rgb);
 		RGBtoHSL(&rgb,&hsl);
 	  length=Hcsr04GetLength();
@@ -180,30 +172,30 @@ int main(void)
 		if(page==1)
 		{
 			Title();
-			OLED_ShowCHinese(0, 4, 101);//¹âÕÕ
+			OLED_ShowCHinese(0, 4, 101);//å…‰ç…§
 			OLED_ShowCHinese(16,4, 102);//
 			OLED_ShowString(32,	4,(u8*)":",16); 
 			OLED_ShowNum(40,		4,Light,3,16);
 			OLED_ShowString(64,	4,(u8*)"%",16);
-			// Ìí¼ÓÑÕÉ«ÅĞ¶ÏÂß¼­
-			OLED_ShowCHinese(0, 2, 81);//ÑÕÉ«
+			// æ·»åŠ é¢œè‰²åˆ¤æ–­é€»è¾‘
+			OLED_ShowCHinese(0, 2, 81);//é¢œè‰²
 			OLED_ShowCHinese(16,2, 82);//
 			OLED_ShowString(32,	2,(u8*)":",16); 
-        // ÑÕÉ«¼ì²âºÍÓïÒôÌáÊ¾Âß¼­
+        // é¢œè‰²æ£€æµ‹å’Œè¯­éŸ³æç¤ºé€»è¾‘
         if(keynum == 3)
-				{ // °´¼ü3¿ØÖÆÑÕÉ«¼ì²â¹¦ÄÜ¿ª¹Ø
+				{ // æŒ‰é”®3æ§åˆ¶é¢œè‰²æ£€æµ‹åŠŸèƒ½å¼€å…³
    //         color_detect_enable = ~color_detect_enable;
             if(color_detect_enable)
 						{
                SU_03T_SendBegin();
-               USART_SendData(USART1, 0x0E); // ·¢ËÍ¿ªÆôÑÕÉ«¼ì²âÌáÊ¾Òô
+               USART_SendData(USART1, 0x0E); // å‘é€å¼€å¯é¢œè‰²æ£€æµ‹æç¤ºéŸ³
                SU_03T_SendEnd();
 								color_detect_enable=0;
 						}
 						else
 						{
                 SU_03T_SendBegin();
-                USART_SendData(USART1, 0x0D); // ·¢ËÍ¹Ø±ÕÑÕÉ«¼ì²âÌáÊ¾Òô
+                USART_SendData(USART1, 0x0D); // å‘é€å…³é—­é¢œè‰²æ£€æµ‹æç¤ºéŸ³
                 SU_03T_SendEnd();
 							color_detect_enable=1;
             }
@@ -211,61 +203,61 @@ int main(void)
             if(color_detect_enable)
 						{
 							Color_LED=1;
-							OLED_ShowCHinese(96, 2, 109);//¿ªÆô
+							OLED_ShowCHinese(96, 2, 109);//å¼€å¯
 							OLED_ShowCHinese(112,2, 110);//
 						}
 						else
 						{
 							
 							Color_LED=0;
-							OLED_ShowCHinese(96, 2, 111);//¹Ø±Õ
+							OLED_ShowCHinese(96, 2, 111);//å…³é—­
 							OLED_ShowCHinese(112,2, 112);//
 							OLED_ShowString(40,	2,(u8*)"  ",16); 
             }
 		if(color_detect_enable) 
 		{
 			if(hsl.s < 15) 
-			{  // ±¥ºÍ¶ÈºÜµÍÊ±ÏÔÊ¾°×É«
-					OLED_ShowCHinese(40, 2, 76);//°×
+			{  // é¥±å’Œåº¦å¾ˆä½æ—¶æ˜¾ç¤ºç™½è‰²
+					OLED_ShowCHinese(40, 2, 76);//ç™½
 					last_color = 0;
 			} 
 			else if(hsl.l < 15) 
-			{  // ÁÁ¶ÈºÜµÍÊ±ÏÔÊ¾ºÚÉ«
-					OLED_ShowCHinese(40, 2, 77);//ºÚ
+			{  // äº®åº¦å¾ˆä½æ—¶æ˜¾ç¤ºé»‘è‰²
+					OLED_ShowCHinese(40, 2, 77);//é»‘
 					last_color = 0;
 			} 
 			else 
 			{
-				// »ùÓÚÉ«Ïà½Ç¶ÈÅĞ¶Ï¾ßÌåÑÕÉ«
+				// åŸºäºè‰²ç›¸è§’åº¦åˆ¤æ–­å…·ä½“é¢œè‰²
         if(hsl.h < 15 || hsl.h >= 345) {
-            OLED_ShowCHinese(40, 2, 83);  // "ºì"
+            OLED_ShowCHinese(40, 2, 83);  // "çº¢"
         } else if(hsl.h < 75) {
-            OLED_ShowCHinese(40, 2, 85);  // "»Æ"
+            OLED_ShowCHinese(40, 2, 85);  // "é»„"
         } else if(hsl.h < 165) {
-            OLED_ShowCHinese(40, 2, 84);  // "ÂÌ"
+            OLED_ShowCHinese(40, 2, 84);  // "ç»¿"
         } else {
             if(hsl.h < 195) {
-                OLED_ShowCHinese(40, 2, 79);  // "Çà"
+                OLED_ShowCHinese(40, 2, 79);  // "é’"
             } else if(hsl.h < 285) {
-                OLED_ShowCHinese(40, 2, 86);  // "À¶"
+                OLED_ShowCHinese(40, 2, 86);  // "è“"
             } else if(hsl.h < 345) {
-                OLED_ShowCHinese(40, 2, 87);  // "×Ï"
+                OLED_ShowCHinese(40, 2, 87);  // "ç´«"
             }
         }
 			}
 			
 		}
 		
-			OLED_ShowCHinese(0, 6, 74);//µÆ¹â
+			OLED_ShowCHinese(0, 6, 74);//ç¯å…‰
 			OLED_ShowCHinese(16,6, 75);//
 			OLED_ShowString(32,	6,(u8*)":",16);
 			if(LEDState==0x00)
 			{
-				OLED_ShowCHinese(40, 6, 57);//¹Ø
+				OLED_ShowCHinese(40, 6, 57);//å…³
 			}
 			else
 			{
-				OLED_ShowCHinese(40, 6, 56);//¿ª
+				OLED_ShowCHinese(40, 6, 56);//å¼€
 			}
 		if(keynum==2)//
 		{  
@@ -288,45 +280,45 @@ int main(void)
 		}
 		if(color_detect_enable) 
 		{
-// Ìí¼ÓÑÕÉ«¼ì²âºÍÓïÒôÌáÊ¾Âß¼­
+// æ·»åŠ é¢œè‰²æ£€æµ‹å’Œè¯­éŸ³æç¤ºé€»è¾‘
         if(hsl.s < 15 || hsl.l < 15)
-				{  // »ÒÉ«»òºÚÉ«
+				{  // ç°è‰²æˆ–é»‘è‰²
             last_color = 0;
         } 
 				else
 				{
-            // ¸ù¾İÉ«Ïà½Ç¶ÈÅĞ¶ÏÑÕÉ«
+            // æ ¹æ®è‰²ç›¸è§’åº¦åˆ¤æ–­é¢œè‰²
             if(hsl.h < 15 || hsl.h >= 345)
-						{  // ºìÉ«
+						{  // çº¢è‰²
                 if(last_color != 1) {
                     SU_03T_SendBegin();
-                    USART_SendData(USART1, 5);  // ·¢ËÍºìÉ«ÓïÒôĞÅÏ¢
+                    USART_SendData(USART1, 5);  // å‘é€çº¢è‰²è¯­éŸ³ä¿¡æ¯
                     SU_03T_SendEnd();
                     last_color = 1;
                 }
             } 
 						else if(hsl.h < 75) 
-						{  // »ÆÉ«
+						{  // é»„è‰²
                 if(last_color != 2) 
 								{
                     SU_03T_SendBegin();
-                    USART_SendData(USART1, 10);  // ·¢ËÍ»ÆÉ«ÓïÒôĞÅÏ¢
+                    USART_SendData(USART1, 10);  // å‘é€é»„è‰²è¯­éŸ³ä¿¡æ¯
                     SU_03T_SendEnd();
                     last_color = 2;
                 }
             } 
 						else if(hsl.h < 165)
-						{  // ÂÌÉ«
+						{  // ç»¿è‰²
                 if(last_color != 3) 
 								{
                     SU_03T_SendBegin();
-                    USART_SendData(USART1, 7);  // ·¢ËÍÂÌÉ«ÓïÒôĞÅÏ¢
+                    USART_SendData(USART1, 7);  // å‘é€ç»¿è‰²è¯­éŸ³ä¿¡æ¯
                     SU_03T_SendEnd();
                     last_color = 3;
                 }
             } 
 						else 
-						{  // ÆäËûÑÕÉ«
+						{  // å…¶ä»–é¢œè‰²
                 last_color = 0;
             }
         }	
@@ -343,7 +335,7 @@ int main(void)
 		if(page==2)
 		{
 			Page_2();
-			if(GPS_Success==0&&ESP_Success_First==1)//±ÜÃâGPSµÄÊ±¼äºÍRTCÊ±¼ä³åÍ»£¬±ÜÃâ·ÇÁªÍøÄ£Ê½ÎŞ·¨¸üĞÂµ±Ç°Ê±¼ä
+			if(GPS_Success==0&&ESP_Success_First==1)//é¿å…GPSçš„æ—¶é—´å’ŒRTCæ—¶é—´å†²çªï¼Œé¿å…éè”ç½‘æ¨¡å¼æ— æ³•æ›´æ–°å½“å‰æ—¶é—´
 			{
 				OLED_ShowNum(0,		6,calendar.w_year,4,16);
 				OLED_ShowString(32,	6,(u8*)"-",16);
@@ -361,7 +353,7 @@ int main(void)
 		{
 			Page_5();
 		}
-/******×Ô¶¯¿ªµÆ******/
+/******è‡ªåŠ¨å¼€ç¯******/
 		if(Light<30)
 		{
 			if(LEDState==0x00)
@@ -370,7 +362,7 @@ int main(void)
 				sprintf((char*)data,"%s&msg=LED_T\r\n",Secret_Key);
 				ESP8266_SendData((unsigned char *)data);
         SU_03T_SendBegin();
-        USART_SendData(USART1, 0x0C);  // ·¢ËÍ¿ªµÆÓïÒôÏûÏ¢
+        USART_SendData(USART1, 0x0C);  // å‘é€å¼€ç¯è¯­éŸ³æ¶ˆæ¯
         SU_03T_SendEnd();
 			}
 			LEDState=0xff;
@@ -380,12 +372,12 @@ int main(void)
 //		{
 //			Page_4();
 //		}
-    /*Ïò°Í·¨ÔÆ·¢ËÍÊı¾İ***************************************/
+    /*å‘å·´æ³•äº‘å‘é€æ•°æ®***************************************/
     sprintf((char*)data,"cmd=2&uid=66e8c21f247d44aeba92be4cccf55956&topic=DaoMangZhang&msg=#%d.%d#%d.%d#%f#%f#%d#%d#%d#%d#%d#\r\n",DHT11_Data.temp_int,0,DHT11_Data.humi_int,DHT11_Data.humi_deci,lon,lat,length,count_Length,QX_Flag,Alarm,Light);
     ESP8266_SendData((unsigned char *)data);
  
 		
-    /*¶ÁÈ¡ÎÂÊª¶ÈÊı¾İ***************************************/
+    /*è¯»å–æ¸©æ¹¿åº¦æ•°æ®***************************************/
     Read_DHT11(&DHT11_Data);								
 
 
@@ -409,7 +401,7 @@ u8 flag_CY;
 void SU_03T(void)
 {
 	
-		if((calendar.hour==Set_CY_hour&&calendar.min==Set_CY_min&&calendar.sec==00))//MPUÖĞ¶Ï±êÖ¾Î»
+		if((calendar.hour==Set_CY_hour&&calendar.min==Set_CY_min&&calendar.sec==00))//MPUä¸­æ–­æ ‡å¿—ä½
 		{
 			SU_03T_SendBegin();
 			USART_SendData(USART1,9);
@@ -426,7 +418,7 @@ void SU_03T(void)
 			Delay_ms(1);
 			USART_SendData(USART1,calendar.sec);
 			SU_03T_SendEnd();
-			Delay_ms(500);//·ÀÖ¹½ÓÊÕÌ«¿ì¶ş´ÎÀÊ¶Á¡£
+			Delay_ms(500);//é˜²æ­¢æ¥æ”¶å¤ªå¿«äºŒæ¬¡æœ—è¯»ã€‚
 			
 		}
 
@@ -434,7 +426,7 @@ void SU_03T(void)
 		{	
 			
 			SU_03T_SendBegin();
-			USART_SendData(USART1,11);//ÎÂ¶ÈµÄÖ¸Áî
+			USART_SendData(USART1,11);//æ¸©åº¦çš„æŒ‡ä»¤
 			Delay_ms(1);
 			USART_SendData(USART1,DHT11_Data.temp_int);
 			Delay_ms(1);
@@ -446,21 +438,21 @@ void SU_03T(void)
 		else if(Res1==0x02)
 			{	
 				SU_03T_SendBegin();
-				USART_SendData(USART1,02);//Êª¶ÈµÄÖ¸Áî
+				USART_SendData(USART1,02);//æ¹¿åº¦çš„æŒ‡ä»¤
 				Delay_ms(1);
 				USART_SendData(USART1,DHT11_Data.humi_int);
 				SU_03T_SendEnd();
 				Res1=0;
 				
 			}
-		else if(Res1==0x03)//Ñ¯ÎÊÊ±¼ä
+		else if(Res1==0x03)//è¯¢é—®æ—¶é—´
 		{
 			SU_03T_SendBegin();
 			USART_SendData(USART1,06);
 			Delay_ms(1);
-			USART_SendData(USART1, calendar.w_year & 0xFF);         // ·¢ËÍµÍ8Î»
+			USART_SendData(USART1, calendar.w_year & 0xFF);         // å‘é€ä½8ä½
 			Delay_ms(1);
-			USART_SendData(USART1, (calendar.w_year >> 8) & 0xFF);  // ·¢ËÍ¸ß8Î»
+			USART_SendData(USART1, (calendar.w_year >> 8) & 0xFF);  // å‘é€é«˜8ä½
 			Delay_ms(1);
 			USART_SendData(USART1,00);
 			Delay_ms(1);
@@ -479,10 +471,10 @@ void SU_03T(void)
 			Res1=0;
 
 		}
-		else if(Res1==0x04)//³öÃÅ²¥±¨µÄÖ¸Áî
+		else if(Res1==0x04)//å‡ºé—¨æ’­æŠ¥çš„æŒ‡ä»¤
 		{
 			SU_03T_SendBegin();
-			USART_SendData(USART1,8);//³öÃÅ²¥±¨µÄÖ¸Áî
+			USART_SendData(USART1,8);//å‡ºé—¨æ’­æŠ¥çš„æŒ‡ä»¤
 			Delay_ms(1);
 			USART_SendData(USART1,DHT11_Data.temp_int);
 			Delay_ms(1);
@@ -491,34 +483,34 @@ void SU_03T(void)
 			Res1=0;
 
 		}
-		else if(Res1==0x05)//Ñ¯ÎÊ¾àÀë
+		else if(Res1==0x05)//è¯¢é—®è·ç¦»
 		{
 			SU_03T_SendBegin();
-			USART_SendData(USART1,1);//Ñ¯ÎÊ¾àÀëµÄÖ¸Áî
+			USART_SendData(USART1,1);//è¯¢é—®è·ç¦»çš„æŒ‡ä»¤
 			Delay_ms(1);
 			USART_SendData(USART1,length);
 			SU_03T_SendEnd();
 			Res1=0;
 
 		}
-		else if(Res1==0x06)//´ò¿ªµÆ¹â
+		else if(Res1==0x06)//æ‰“å¼€ç¯å…‰
 		{
 			LEDState=0xff;
 			LED_ON();
 			Res1=0;
 		}
-		else if(Res1==0x07)//¹Ø±ÕµÆ¹â
+		else if(Res1==0x07)//å…³é—­ç¯å…‰
 		{
 			LEDState=0x00;
 			LED_OFF();
 			Res1=0;
 		}
-		else if(Res1==0x08)//¿ªÆôÑÕÉ«Ê¶±ğ
+		else if(Res1==0x08)//å¼€å¯é¢œè‰²è¯†åˆ«
 		{
 			color_detect_enable=1;
 			Res1=0;
 		}
-		else if(Res1==0x09)//¹Ø±ÕÑÕÉ«Ê¶±ğ
+		else if(Res1==0x09)//å…³é—­é¢œè‰²è¯†åˆ«
 		{
 			color_detect_enable=0;
 			Res1=0;
@@ -529,21 +521,21 @@ u8 pageNum=1;
 void Page_5(void)
 {
 
-		OLED_ShowCHinese(26, 0,88);//ãĞÖµÉèÖÃ
+		OLED_ShowCHinese(26, 0,88);//é˜ˆå€¼è®¾ç½®
 		OLED_ShowCHinese(44, 0,89);//
 		OLED_ShowCHinese(62, 0,90);//
 		OLED_ShowCHinese(80, 0,91);//
 		OLED_ShowString(110,row,(u8*)"<",16); 
 
 		OLED_ShowString(110,row,(u8*)"<",16);  
-		OLED_ShowCHinese(0, 2, 99);//¾àÀë
+		OLED_ShowCHinese(0, 2, 99);//è·ç¦»
 		OLED_ShowCHinese(16,2, 100);//
-		OLED_ShowCHinese(32,2,88);//ãĞÖµ
+		OLED_ShowCHinese(32,2,88);//é˜ˆå€¼
 		OLED_ShowCHinese(48,2,89);//
 		OLED_ShowString(32+32,	2,(u8*)":",16);	
 		OLED_ShowNum(40+32,		2,count_Length,2,16);
 
-		OLED_ShowCHinese(0, 	4, 103);//³ÔÒ©Ê±¼ä
+		OLED_ShowCHinese(0, 	4, 103);//åƒè¯æ—¶é—´
 		OLED_ShowCHinese(16,	4, 104);//
 		OLED_ShowCHinese(32,	4,105);//
 		OLED_ShowCHinese(48,	4,106);//
@@ -554,23 +546,23 @@ void Page_5(void)
 		
 
 
-			if(keynum==3)//°´¼ü3
+			if(keynum==3)//æŒ‰é”®3
 			{
 				count_Length++;
 				Store_Data[1] = count_Length;
-				Store_Save();// Ö»ÔÚĞèÒªÊ±Ö´ĞĞ Flash Ğ´Èë
+				Store_Save();// åªåœ¨éœ€è¦æ—¶æ‰§è¡Œ Flash å†™å…¥
 			}
-			if(keynum==4)//°´¼ü4
+			if(keynum==4)//æŒ‰é”®4
 			{
 				count_Length--;
 				Store_Data[1] = count_Length;
-				Store_Save();// Ö»ÔÚĞèÒªÊ±Ö´ĞĞ Flash Ğ´Èë
+				Store_Save();// åªåœ¨éœ€è¦æ—¶æ‰§è¡Œ Flash å†™å…¥
 			}
 
 }
 void Title(void)
 {
-	  OLED_ShowCHinese(8,  0,15);//ÖÇÄÜµ¼Ã¤ÏµÍ³
+	  OLED_ShowCHinese(8,  0,15);//æ™ºèƒ½å¯¼ç›²ç³»ç»Ÿ
     OLED_ShowCHinese(26, 0,16);//
     OLED_ShowCHinese(44, 0,45);//
     OLED_ShowCHinese(62, 0,46);//
@@ -579,36 +571,36 @@ void Title(void)
 }
 void Page_1(void)
 {
-	 /*******************OLEDÏÔÊ¾Êı¾İ***************************************/
+	 /*******************OLEDæ˜¾ç¤ºæ•°æ®***************************************/
 		Title();
-	//ÏÔÊ¾ÎÂ¶È
-    OLED_ShowCHinese(0, 2,10);//ÎÂ
-    OLED_ShowCHinese(18,2,12);//¶È
-    OLED_ShowCHinese(34,2,13);//£º
+	//æ˜¾ç¤ºæ¸©åº¦
+    OLED_ShowCHinese(0, 2,10);//æ¸©
+    OLED_ShowCHinese(18,2,12);//åº¦
+    OLED_ShowCHinese(34,2,13);//ï¼š
     OLED_ShowNum(42,2,DHT11_Data.temp_int,2,16);
     OLED_ShowString(58,2,(u8*)".",16); 
     OLED_ShowNum(66,2,0,1,16);
     OLED_ShowCHinese(80,2,25); 
         
-    OLED_ShowCHinese(0, 4,11);//Êª
-    OLED_ShowCHinese(18,4,12);//¶È
-    OLED_ShowCHinese(34,4,13);//£º
+    OLED_ShowCHinese(0, 4,11);//æ¹¿
+    OLED_ShowCHinese(18,4,12);//åº¦
+    OLED_ShowCHinese(34,4,13);//ï¼š
     OLED_ShowNum(42,4,DHT11_Data.humi_int,2,16);
     OLED_ShowString(58,4,(u8*)".",16); 
     OLED_ShowNum(66,4,DHT11_Data.humi_deci,1,16);
     OLED_ShowString(80,4,(u8*)"%",16);  
 	  
-	OLED_ShowCHinese(0, 6, 99);//¾àÀë
+	OLED_ShowCHinese(0, 6, 99);//è·ç¦»
     OLED_ShowCHinese(16,6, 100);//
     OLED_ShowString(32,	6,(u8*)":",16); 
 	OLED_ShowNum(40,	6,length,3,16);
     OLED_ShowString(64,	6,(u8*)"cm",16);  
-		if(keynum==2)//°´¼ü2
+		if(keynum==2)//æŒ‰é”®2
 		{
 			Alarm=~Alarm;
 			if(Alarm==0xff)
 			{
-				OLED_ShowCHinese(96, 6, 107);//±¨¾¯
+				OLED_ShowCHinese(96, 6, 107);//æŠ¥è­¦
 				OLED_ShowCHinese(112, 6, 108);//
 			}
 			else
@@ -624,7 +616,7 @@ void WIFIChoose_Page(void)
 {
 	Title();
 	
-	OLED_ShowCHinese(8-8,  	3,92);//ÇëÑ¡ÔñÊÇ·ñÁªÍø
+	OLED_ShowCHinese(8-8,  	3,92);//è¯·é€‰æ‹©æ˜¯å¦è”ç½‘
 	OLED_ShowCHinese(26-8, 	3,93);//
 	OLED_ShowCHinese(44-8, 	3,94);//
 	OLED_ShowCHinese(62-8, 	3,95);//
